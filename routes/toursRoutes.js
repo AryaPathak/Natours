@@ -1,6 +1,7 @@
 
 const express = require('express');
-const tourController = require('./../controllers/tourController');
+const tourController = require("../controllers/tourController");
+
 const router = express.Router();
 
 
@@ -8,7 +9,7 @@ const router = express.Router();
 router
     .route('/')
     .get(tourController.getAllTours)
-    .post(tourController.checkbody, tourController.createTour);
+    .post(tourController.createTour);
 
 
 router
