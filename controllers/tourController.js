@@ -1,33 +1,28 @@
-const fs = require('fs');
+const Tour = require("../models/tourModel");
 
-const tours = JSON.parse(
-    fs.readFileSync(`${__dirname}/../dev-data/data/tours-simple.json`)
-);
+exports.getAllTours = async (req, res) => {
+  try{
 
+    const queryObj = {...req.query};
+    const excludedFields = ['page', 'sort', 'limit', 'fields'];
+    excludedFields.forEach(el => delete queryObj[el]);
 
-exports.checkId = (req, res, next, val) => {
-  console.log(`Tour id is: ${val}`)
-  if(req.params.id*1 > tours.length) {
-    return res.status(404).json({
-      status: 'fail',
-      message: 'Invalid Id'
-    });
-  }
-  next();
-}
+    
+    let queryStr = JSON.stringyfy(queryObj);
+    queryStr = queryStr.replace(/\b(gte|gt|lte|lt)\b/g, match => `$${match}`);
+    console.log("ghjsbjb");
+    console.log(JSON.parse(queryStr));
+    console.log("fkjfj");
 
-exports.checkBody = (req, res, next) => {
-  if(!req.body || !req.body.price){
-    return res.status(400).json({
-      status: 'fail',
-      message: 'Price or Name is missing'
-    });
-  } 
-  next();
-}
-  
+    const query = Tour.find(queryObj);
 
-exports.getAllTours = (req, res) => {
+    const tours = await query;
+
+    // const query = await Tour.find()
+    //   .where('duration').equal
+    
+    //   .where('difficulty').equals('easy');
+
     res.status(200).json({
       status: 'success',
       results: tours.length,
@@ -35,40 +30,39 @@ exports.getAllTours = (req, res) => {
         tours
       }
     })
-  }
-  
-  exports.getTour =(req, res) => {
-    console.log(req.params);
-  
-    const id = req.params.id*1;
-    const tour = tours.find(el=>el.id === id);
-  
-  
-    
-  
-    res.status(200).json({
-      status: 'success',
-      data:{
-        tour
-      }
+  }catch(err){
+    res.status(404).json({
+      status: 'fail',
+      message: err
     })
+    
+  }
+}  
+  exports.getTour =async(req, res) => {
+
+    try{
+      const tour = await Tour.findById(req.params.id);
+      res.status(200).json({
+        status: 'success',
+        data:{
+          tour
+        }
+      })
+    }catch(error){
+      res.status(404).json({
+        status: 'fail',
+        message: error
+      })
+    }
+ 
   }
   
   
-  exports.createTour = (req, res) => {
-    //console.log(req.body);
-    const newId = tours[tours.length-1].id + 1;
-  
-    // eslint-disable-next-line prefer-object-spread
-    const newTour = Object.assign({ id: newId }, req.body);
-  
-  
-    tours.push(newTour);
-  
-    fs.writeFile(
-      `${__dirname}/dev-data/data/tours-simple.json`, 
-      JSON.stringify(tours), 
-      err=>{
+  exports.createTour = async (req, res) => {
+
+    try{
+      const newTour = await Tour.create(req.body);
+
       res.status(201).json({
         status: 'success',
         data:{
@@ -76,33 +70,61 @@ exports.getAllTours = (req, res) => {
         }
       });
   
-    });
-  
+    }catch(err){
+      res.status(400).json({
+        status: 'fail',
+        message: err
+      })
+    }
+    
   }
   
   
-  exports.updateTour = (req, res) => {
+  exports.updateTour = async(req, res) => {
     
-  
-    res.status(200).json({
-      status:'success',
-      data:{
-        tour: '<Update tour here...>'
-      }
-    })
+    try{
+      const tour = await Tour.findByIdAndUpdate(req.params.id, req.body,{
+        new: true,
+        runValidators: true
+      })
+      res.status(200).json({
+        status:'success',
+        data:{
+          tour
+        }
+      })
+    }catch(err){
+      res.status(404).json({
+        status: 'fail',
+        message: err
+      })
+    }
+    
   }
   
   
   
   
   
-  exports.deleteTour = (req,res) => {
+  exports.deleteTour = async(req,res) => {
     
+    try{
+      const tour = await Tour.findByIdAndDelete(req.params.id, req.body)
+
+      res.status(204).json({
+        status:'success',
+        data:null
+      });
+      
   
-    res.status(204).json({
-      status:'success',
-      data:null
-    });
+    }catch(err){
+      res.status(400).json({
+        status: 'fail',
+        message: err
+      })
+    }
+  
+   
   }
 
 
