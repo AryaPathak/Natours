@@ -5,11 +5,13 @@ const jwt = require('jsonwebtoken');
 const User = require("../models/userModel");
 
 
+// eslint-disable-next-line arrow-body-style
 const signToken = id => {
-    jwt.sign({ id }, process.env.JWT_SECRET,{
+    return jwt.sign({ id }, process.env.JWT_SECRET, {
         expiresIn: process.env.JWT_EXPIRES_IN
     });
 }
+
 
 exports.signup = async(req, res, next) => {
     const newUser = await User.create({
@@ -67,7 +69,8 @@ exports.login = async (req, res, next) => {
         status: 'success',
         token
     })
-    console.log(token)
+    console.log("the token is   ", token)
+    
 }
 
 
@@ -92,7 +95,7 @@ exports.protect = (async (req, res, next) => {
     //Validate token
     let decoded;
     try{
-         decoded = await promisify(jwt.verify)(token, process.env.JWT_SECRET)
+        decoded = await promisify(jwt.verify)(token, process.env.JWT_SECRET)
         console.log(decoded)
     }catch(err){
         res.status(404).json({
@@ -119,3 +122,6 @@ exports.protect = (async (req, res, next) => {
     req.user = freshUser;
     next();
 })
+
+
+
