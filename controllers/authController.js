@@ -125,3 +125,14 @@ exports.protect = (async (req, res, next) => {
 
 
 
+// eslint-disable-next-line arrow-body-style
+exports.restrictTo = (...roles) => {
+    return (req, res, next) => {
+        if (!roles.includes(req.user.role)) {
+            const error = new Error('You do not have permission for this action');
+            error.status = 403; // 403 Forbidden
+            return next(error);
+        }
+        next(); 
+    };
+}
