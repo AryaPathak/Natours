@@ -10,6 +10,8 @@ app.use(express.static(`${__dirname}/public`));
 
 const tourRouter = require('./routes/tourRoutes');
 const userRouter = require('./routes/userRoutes');
+const reviewRouter = require('./routes/reviewRoutes');
+
 
 console.log(process.env.NODE_ENV);
 if(process.env.NODE_ENV === 'development'){
@@ -32,7 +34,7 @@ app.use(express.json());
 
 app.use('/api/v1/tours', tourRouter);
 app.use('/api/v1/users', userRouter);
-
+app.use('/api/v1/reviews', reviewRouter);
 
 // app.get('/api/v1/tours', getAllTours);
 // app.get('/api/v1/tours/:id', getTour);
