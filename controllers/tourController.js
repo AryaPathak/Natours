@@ -1,5 +1,6 @@
 const Tour = require("../models/tourModel");
 const APIFeatures = require("../utils/apiFeatures");
+const factory =  require("./handlerFactory");
 
 exports.aliasTopTours = (req,res, next) => {
   req.query.limit = '5';
@@ -9,123 +10,129 @@ exports.aliasTopTours = (req,res, next) => {
 };
 
 
-exports.getAllTours = async (req, res) => {
-  try{
-    //Execute Query
-    const features = new APIFeatures(Tour.find(), req.query)
-      .filter()
-      .sort()
-      .limitFields()
-      .paginate();
+// exports.getAllTours = async (req, res) => {
+//   try{
+//     //Execute Query
+//     const features = new APIFeatures(Tour.find(), req.query)
+//       .filter()
+//       .sort()
+//       .limitFields()
+//       .paginate();
 
-    const tours = await features.query;
+//     const tours = await features.query;
 
-    res.status(200).json({
-      status: 'success',
-      results: tours.length,
-      data:{
-        tours
-      }
-    })
-  }catch(err){
-    res.status(404).json({
-      status: 'fail',
-      message: err
-    })
+//     res.status(200).json({
+//       status: 'success',
+//       results: tours.length,
+//       data:{
+//         tours
+//       }
+//     })
+//   }catch(err){
+//     res.status(404).json({
+//       status: 'fail',
+//       message: err
+//     })
     
-  }
-}  
+//   }
+// }  
 
 
-  exports.getTour =async(req, res) => {
 
-    try{
-      const tour = await Tour.findById(req.params.id).populate('reviews');
-      res.status(200).json({
-        status: 'success',
-        data:{
-          tour
-        }
-      })
-    }catch(error){
-      res.status(404).json({
-        status: 'fail',
-        message: error
-      })
-    }
+
+  // exports.getTour =async(req, res) => {
+
+  //   try{
+  //     const tour = await Tour.findById(req.params.id).populate('reviews');
+  //     res.status(200).json({
+  //       status: 'success',
+  //       data:{
+  //         tour
+  //       }
+  //     })
+  //   }catch(error){
+  //     res.status(404).json({
+  //       status: 'fail',
+  //       message: error
+  //     })
+  //   }
  
-  }
+  // }
   
   
-  exports.createTour = async (req, res) => {
 
-    try{
-      const newTour = await Tour.create(req.body);
+  // exports.createTour = async (req, res) => {
 
-      res.status(201).json({
-        status: 'success',
-        data:{
-          tour: newTour
-        }
-      });
-  
-    }catch(err){
-      res.status(400).json({
-        status: 'fail',
-        message: err
-      })
-    }
-    
-  }
-  
-  
-  exports.updateTour = async(req, res) => {
-    
-    try{
-      const tour = await Tour.findByIdAndUpdate(req.params.id, req.body,{
-        new: true,
-        runValidators: true
-      })
-      res.status(200).json({
-        status:'success',
-        data:{
-          tour
-        }
-      })
-    }catch(err){
-      res.status(404).json({
-        status: 'fail',
-        message: err
-      })
-    }
-    
-  }
-  
-  
-  exports.deleteTour = async(req,res) => {
-    
-    try{
-      const tour = await Tour.findByIdAndDelete(req.params.id, req.body)
+  //   try{
+  //     const newTour = await Tour.create(req.body);
 
-      res.status(204).json({
-        status:'success',
-        data:null
-      });
+  //     res.status(201).json({
+  //       status: 'success',
+  //       data:{
+  //         tour: newTour
+  //       }
+  //     });
+  
+  //   }catch(err){
+  //     res.status(400).json({
+  //       status: 'fail',
+  //       message: err
+  //     })
+  //   }
+    
+  // }
+  
+
+  
+  // exports.updateTour = async(req, res) => {
+    
+  //   try{
+  //     const tour = await Tour.findByIdAndUpdate(req.params.id, req.body,{
+  //       new: true,
+  //       runValidators: true
+  //     })
+  //     res.status(200).json({
+  //       status:'success',
+  //       data:{
+  //         tour
+  //       }
+  //     })
+  //   }catch(err){
+  //     res.status(404).json({
+  //       status: 'fail',
+  //       message: err
+  //     })
+  //   }
+    
+  // }
+  
+  
+  // exports.deleteTour = async(req,res) => {
+    
+  //   try{
+  //     const tour = await Tour.findByIdAndDelete(req.params.id, req.body)
+
+  //     res.status(204).json({
+  //       status:'success',
+  //       data:null
+  //     });
       
   
-    }catch(err){
-      res.status(400).json({
-        status: 'fail',
-        message: err
-      })
-    }
+  //   }catch(err){
+  //     res.status(400).json({
+  //       status: 'fail',
+  //       message: err
+  //     })
+  //   }
   
    
-  }
+  // }
 
-
-
-
+  exports.deleteTour = factory.deleteOne(Tour);
+  exports.updateTour = factory.updateOne(Tour);
+  exports.createTour = factory.createOne(Tour);
+  exports.getTour = factory.getOne(Tour, {path: 'reviews'});
+  exports.getAllTours = factory.getAll(Tour);
 
 exports.getToursStats = async (req, res) => {
   try{
@@ -216,3 +223,4 @@ exports.getMonthlyPlan = async (req, res) => {
     })
   }
 }
+

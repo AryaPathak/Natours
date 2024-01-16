@@ -1,4 +1,5 @@
 const User = require("../models/userModel");
+const factory =  require("./handlerFactory");
 
 
 const filterObj = (obj, ...allowedFields)=>{
@@ -9,16 +10,16 @@ const filterObj = (obj, ...allowedFields)=>{
 
 }
 
-  exports.getAllUsers =async (req, res) => {
-   const users = await User.find();
-   res.status(200).json({
-    status: 'success',
-    results: users.length,
-    data:{
-      users
-    }
-   })
-  }
+  // exports.getAllUsers =async (req, res) => {
+  //  const users = await User.find();
+  //  res.status(200).json({
+  //   status: 'success',
+  //   results: users.length,
+  //   data:{
+  //     users
+  //   }
+  //  })
+  // }
   
 
   exports.updateMe = async (req, res, next)=>{
@@ -52,12 +53,12 @@ const filterObj = (obj, ...allowedFields)=>{
     })
   }
 
-  exports.getUser = (req, res) => {
-    res.status(500).json({
-      status:'error',
-      message: 'Not Defined route'
-    })
-  }
+  // exports.getUser = (req, res) => {
+  //   res.status(500).json({
+  //     status:'error',
+  //     message: 'Not Defined route'
+  //   })
+  // }
   
   exports.createUser = (req, res) => {
     res.status(500).json({
@@ -66,18 +67,13 @@ const filterObj = (obj, ...allowedFields)=>{
     })
   }
   
-  exports.updateUser = (req, res) => {
-    res.status(500).json({
-      status:'error',
-      message: 'Not Defined route'
-    })
-  }
-  
-  exports.deleteUser = (req, res) => {
-    res.status(500).json({
-      status:'error',
-      message: 'Not Defined route'
-    })
-  }
-  
-  
+  // exports.updateUser = (req, res) => {
+  //   res.status(500).json({
+  //     status:'error',
+  //     message: 'Not Defined route'
+  //   })
+  // }
+  exports.getUser = factory.getOne(User);
+  exports.deleteUser = factory.deleteOne(User);
+  exports.updateUser = factory.updateOne(User);
+  exports.getAllUsers = factory.getAll(User);
