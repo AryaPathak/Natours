@@ -122,7 +122,7 @@ tourSchema.virtual('durationWeeks').get(function(){
   return this.duration/7;
 })
 
-
+tourSchema.index({startLocation: '2dsphere'});
 
 //virtual populate
 tourSchema.virtual('reviews', {
@@ -189,12 +189,12 @@ tourSchema.post(/^find/, function(docs,next){
 
 
 //Agregation Middleware
-tourSchema.pre('aggregate', function(next){
+// tourSchema.pre('aggregate', function(next){
 
-  this.pipeline().unshift({$match: {SecretTour: {$ne: true}}})
-  console.log(this.pipeline());
-  next();
-})
+//   this.pipeline().unshift({$match: {SecretTour: {$ne: true}}})
+//   console.log(this.pipeline());
+//   next();
+// })
 
 const Tour = mongoose.model('Tour', tourSchema);
 

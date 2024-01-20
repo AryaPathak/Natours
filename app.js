@@ -1,3 +1,4 @@
+const path = require('path');
 const fs = require('fs');
 const express = require('express');
 
@@ -5,12 +6,16 @@ const morgan = require('morgan');
 
 const app = express();
 
+app.set('view engine', 'pug');
+app.set('views', path.join(__dirname, 'views'));
 
-app.use(express.static(`${__dirname}/public`));
+
+app.use(express.static(path.join(__dirname, 'public')));
 
 const tourRouter = require('./routes/tourRoutes');
 const userRouter = require('./routes/userRoutes');
 const reviewRouter = require('./routes/reviewRoutes');
+
 
 
 console.log(process.env.NODE_ENV);
@@ -26,6 +31,10 @@ app.use((req, res, next) => {
 app.use(express.json());
 
 
+
+app.get('/', (req, res)=>{
+  res.status(200).render('base');
+})
 
 
 //All the functions were here
