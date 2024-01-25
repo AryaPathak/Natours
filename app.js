@@ -33,13 +33,28 @@ app.use(express.json());
 
 
 app.get('/', (req, res)=>{
-  res.status(200).render('base');
+  res.status(200).render('base',{
+    tour:'The forest hiker'
+
+  });
+})
+
+
+
+app.get('/overview', (req, res) => {
+  res.status(200).render('overview',{
+    title: 'All Tours'
+  });
+})
+
+app.get('/tour', (req, res) => {
+  res.status(200).render('tour',{
+    title: 'The forest hiker'
+  });
 })
 
 
 //All the functions were here
-
-
 
 app.use('/api/v1/tours', tourRouter);
 app.use('/api/v1/users', userRouter);
@@ -50,9 +65,6 @@ app.use('/api/v1/reviews', reviewRouter);
 // app.post('/api/v1/tours', createTour);
 // app.patch('/api/v1/tours/:id', updateTour);
 // app.delete('/api/v1/tours/:id', deleteTour);
-
-
-
 
 
 module.exports=app;
