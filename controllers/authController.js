@@ -16,16 +16,28 @@ const signToken = id => {
 }
 
 
-const createSendToken = (user, statusCode, res) => {
+
+const createSendToken = (user, statusCode, req, res) => {
     const token = signToken(user._id);
+  
+    res.cookie('jwt', token, {
+      
+      httpOnly: true,
+      //secure: req.secure || req.headers['x-forwarded-proto'] === 'https'
+      secure: true
+    });
+    console.log("the token is   ", token)
+    // Remove password from output
+    user.password = undefined;
+  
     res.status(statusCode).json({
-        status: 'success',
-        token,
-        data:{
-            user: user
-        }
-    })
-}
+      status: 'success',
+      token,
+      data: {
+        user
+      }
+    });
+  };
 
 
 exports.signup = async(req, res, next) => {
@@ -35,9 +47,6 @@ exports.signup = async(req, res, next) => {
         password: req.body.password,
         passwordConfirm: req.body.passwordConfirm
     });
-
-    
-
     const token = signToken(newUser._id);
     
     try{
@@ -56,6 +65,7 @@ exports.signup = async(req, res, next) => {
         })
     
     }
+    createSendToken(newUser, 201, req, res);
 }
 
 exports.login = async (req, res, next) => {
@@ -67,11 +77,9 @@ exports.login = async (req, res, next) => {
         return next(error);
     }
 
-
     //Check if user exists and password is correct
     const user = await User.findOne({ email}).select('+password');
     
-
     if(!user || !(await user.correctPassword(password, user.password))){
         const error = new Error('Incorrect email or password');
         error.status = 401;
@@ -79,14 +87,14 @@ exports.login = async (req, res, next) => {
     }
     
     //If everything ok, send token to client
+    // const token = signToken(user._id);
 
-    const token = signToken(user._id);
-
-    res.status(200).json({
-        status: 'success',
-        token
-    })
-    console.log("the token is   ", token)
+    // res.status(200).json({
+    //     status: 'success',
+    //     token
+    // })
+    // console.log("the token is   ", token)
+    createSendToken(user, 200, req, res);
     
 }
 
@@ -100,6 +108,9 @@ exports.protect = (async (req, res, next) => {
         req.headers.authorization.startsWith('Bearer')
     ){
         token = req.headers.authorization.split(' ')[1];
+    }
+    else if (req.cookies.jwt) {
+        token = req.cookies.jwt;
     }
     
     if(!token){
@@ -141,6 +152,33 @@ exports.protect = (async (req, res, next) => {
 })
 
 
+exports.isLoggedIn = async (req, res, next) => {
+    if (req.cookies.jwt) {
+      
+        // 1) verify token
+        const decoded = await promisify(jwt.verify)(
+          req.cookies.jwt,
+          process.env.JWT_SECRET
+        );
+  
+        // 2) Check if user still exists
+        const currentUser = await User.findById(decoded.id);
+        if (!currentUser) {
+          return next();
+        }
+  
+        // 3) Check if user changed password after the token was issued
+        // if (currentUser.changedPasswordAfter(decoded.iat)) {
+        //   return next();
+        // }
+  
+        // THERE IS A LOGGED IN USER
+        res.locals.user = currentUser;
+        return next();
+      
+    }
+    next();
+  };
 
 // eslint-disable-next-line arrow-body-style
 exports.restrictTo = (...roles) => {
