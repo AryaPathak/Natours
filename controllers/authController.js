@@ -69,6 +69,7 @@ exports.signup = async(req, res, next) => {
 }
 
 exports.login = async (req, res, next) => {
+    console.log("this is login fun")
     const { email, password } = req.body;
     //check if email and password exists
     if (!email || !password) {
@@ -108,7 +109,7 @@ exports.logout = (req, res) => {
 
 
 exports.protect = (async (req, res, next) => {
-
+    
     //Get token and check if its there
     let token;
     if(
@@ -141,21 +142,23 @@ exports.protect = (async (req, res, next) => {
     }
     
     //check if user exist
-    const freshUser = await User.findById(decoded.id);
-    if(!freshUser){
+    const currentUser = await User.findById(decoded.id);
+    if(!currentUser){
         const error = new Error('User not exist');
         error.status = 401;
         return next(error);
     }
     //check if user changed passsword after token issueed
 
-    if(freshUser.changedPasswordAfter(decoded.iat)){
+    if(currentUser.changedPasswordAfter(decoded.iat)){
         const error = new Error('password changed recently');
         error.status = 401;
         return next(error);
     }
-
-    req.user = freshUser;
+    
+    req.user = currentUser;
+    res.locals.user = currentUser;
+    console.log("Protecttttt")
     next();
 })
 

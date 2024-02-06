@@ -28,6 +28,7 @@ const filterObj = (obj, ...allowedFields)=>{
   }
 
   exports.updateMe = async (req, res, next)=>{
+    
     //create error if user POSTs password data
     if(req.body.passowrd || req.body.passowrdConfirm){
       const error = new Error('this route not for password updates');
@@ -47,6 +48,7 @@ const filterObj = (obj, ...allowedFields)=>{
         user: updatedUser
       }
     })
+    console.log("UpdateMe first")
   }
 
   exports.deleteMe = async(req, res, next)=>{
